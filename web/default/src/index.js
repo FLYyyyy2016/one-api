@@ -19,7 +19,7 @@ root.render(
       <UserProvider>
         <BrowserRouter>
           <Header />
-          <Container className={'main-content'}>
+          <Container className={'main-content fluid'}>
             <App />
           </Container>
           <ToastContainer />

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"github.com/gin-contrib/sessions"
@@ -18,6 +19,7 @@ import (
 	"github.com/songquanpeng/one-api/router"
 	"os"
 	"strconv"
+	"strings"
 )
 
 //go:embed web/build/*
@@ -94,6 +96,19 @@ func main() {
 	// Initialize HTTP server
 	server := gin.New()
 	server.Use(gin.Recovery())
+
+	server.Use(func(c *gin.Context) { // 用来记录请求数据
+		var buf bytes.Buffer
+		c.Set("responseBody", &buf)
+		if strings.HasPrefix(c.Request.URL.Path, "/v1") {
+			c.Writer = &customResponseWriter{
+				ResponseWriter: c.Writer,
+				body:           &buf,
+			}
+		}
+		c.Next()
+	})
+
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
 	server.Use(middleware.RequestId())
@@ -112,4 +127,19 @@ func main() {
 	if err != nil {
 		logger.FatalLog("failed to start HTTP server: " + err.Error())
 	}
+}
+
+type customResponseWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w *customResponseWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+func (w *customResponseWriter) WriteString(s string) (int, error) {
+	w.body.WriteString(s)
+	return w.ResponseWriter.WriteString(s)
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -21,6 +22,7 @@ import (
 )
 
 func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
+	fmt.Println("relay time : ", time.Now())
 	ctx := c.Request.Context()
 	meta := meta.GetByContext(c)
 	// get & validate textRequest
@@ -78,8 +80,12 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		billing.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
 		return respErr
 	}
+	// 在这里可以查看之前步骤写入的内容
+	bufStr := c.MustGet("responseBody").(*bytes.Buffer)
+	responseText := bufStr.String()
+	requestText := c.GetString("requestBody")
 	// post-consume quota
-	go postConsumeQuota(ctx, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio)
+	go postConsumeQuota(ctx, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio, requestText, responseText)
 	return nil
 }
 
@@ -103,5 +109,6 @@ func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralO
 	}
 	logger.Debugf(c.Request.Context(), "converted request: \n%s", string(jsonData))
 	requestBody = bytes.NewBuffer(jsonData)
+	c.Set("requestBody", string(jsonData))
 	return requestBody, nil
 }

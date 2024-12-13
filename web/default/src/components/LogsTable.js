@@ -279,47 +279,21 @@ const LogsTable = () => {
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
-                  sortLog('type');
-                }}
-                width={1}
-              >
-                类型
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
                   sortLog('model_name');
                 }}
                 width={2}
               >
                 模型
               </Table.HeaderCell>
+
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
-                  sortLog('prompt_tokens');
+                  sortLog('request');
                 }}
                 width={1}
               >
-                提示
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('completion_tokens');
-                }}
-                width={1}
-              >
-                补全
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('quota');
-                }}
-                width={1}
-              >
-                额度
+                请求内容
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
@@ -328,7 +302,7 @@ const LogsTable = () => {
                 }}
                 width={isAdminUser ? 4 : 6}
               >
-                详情
+                响应内容
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -355,12 +329,9 @@ const LogsTable = () => {
                       )
                     }
                     <Table.Cell>{log.token_name ? <Label basic>{log.token_name}</Label> : ''}</Table.Cell>
-                    <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
-                    <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
-                    <Table.Cell>{log.completion_tokens ? log.completion_tokens : ''}</Table.Cell>
-                    <Table.Cell>{log.quota ? renderQuota(log.quota, 6) : ''}</Table.Cell>
-                    <Table.Cell>{log.content}</Table.Cell>
+                    <Table.Cell collapsing={true} singleLine={true} style={{ overflow: 'auto', maxWidth: '450px' }}>{log.request ? log.request : ''}</Table.Cell>
+                    <Table.Cell collapsing={true} singleLine={true} style={{ overflow: 'auto', maxWidth: '450px'  }}>{log.response ? log.response  : ''}</Table.Cell>
                   </Table.Row>
                 );
               })}
